@@ -1,23 +1,24 @@
 <?php
 
-namespace App\Mylibs;
+namespace App\Libraries\SocialMedia;
 
 use Illuminate\Support\Facades\Log;
 use App\Exceptions\SmhAPIException;
+use App\Libraries\SocialMedia\SocialMedia;
 
-class GoogleClientApi {
+class GoogleClientApi implements SocialMedia {
 
     protected $OAUTH2_CLIENT_ID;
     protected $OAUTH2_CLIENT_SECRET;
     protected $REDIRECT_URL;
 
     public function __construct() {
-        $this->OAUTH2_CLIENT_ID = '625514053094-0rdhl4tub0dn2kd4edk9onfcd38i1uci.apps.googleusercontent.com';
-        $this->OAUTH2_CLIENT_SECRET = 'o9fEzEUdCq_mXLMGDMHboE6m';
-        $this->REDIRECT_URL = 'http://devplatform.streamingmediahosting.com/apps/sn/v1.0/oauth2callback.php';
+        $this->OAUTH2_CLIENT_ID = env('GOOGLE_CLIENT_ID');
+        $this->OAUTH2_CLIENT_SECRET = env('GOOGLE_OAUTH2_CLIENT_SECRET');
+        $this->REDIRECT_URL = env('GOOGLE_REDIRECT_URI');
     }
 
-    public function getRedirectURL($pid, $ks, $projection) {
+    public function getRedirectURL($user_data) {
         try {
             $client = new \Google_Client();
             $client->setClientId($this->OAUTH2_CLIENT_ID);
@@ -27,18 +28,20 @@ class GoogleClientApi {
             $client->setApprovalPrompt('force');
             $redirect = filter_var($this->REDIRECT_URL, FILTER_SANITIZE_URL);
             $client->setRedirectUri($redirect);
-            $client->setState($pid . "|" . $ks . "|" . $projection);
+            $client->setState($user_data->pid . "|" . $user_data->ks . "|" . $user_data->projection);
             $authUrl = $client->createAuthUrl();
             return $authUrl;
         } catch (Google_Service_Exception $e) {
-            throw new SmhAPIException('google_api_error', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+            $error = array('Google', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+            throw new SmhAPIException('socail_media_api_error', $error);
         } catch (Exception $e) {
-            throw new SmhAPIException('google_api_error', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+            $error = array('Google', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+            throw new SmhAPIException('socail_media_api_error', $error);
         }
     }
 
     public function checkAuthToken($pid, $token) {
-        $success = array('success' => false);
+        $success = array('isValid' => false);
         try {
             $client = new \Google_Client();
             $client->setClientId($this->OAUTH2_CLIENT_ID);
@@ -51,22 +54,33 @@ class GoogleClientApi {
             $client->setAccessToken($token);
 
             if ($this->validateToken($token['access_token'])) {
-                $success = array('success' => true, 'message' => 'valid_access_token', 'access_token' => $token);
+                $success = array(
+                  'isValid' => true,
+                  'message' => 'valid_access_token',
+                  'access_token' => $token,
+                );
             } else {
                 $check_refresh_token = $client->refreshToken($token['refresh_token']);
                 if (isset($check_refresh_token['error'])) {
-                    $success = array('success' => false, 'message' => $check_refresh_token['error_description']);
+                    $success = array(
+                      'isValid' => false,
+                      'message' => $check_refresh_token['error_description'],
+                    );
                 } else {
                     $new_access_token = $client->getAccessToken();
-                    $success = array('success' => true, 'message' => 'new_access_token', 'access_token' => $new_access_token);
+                    $success = array(
+                      'isValid' => true,
+                      'message' => 'new_access_token',
+                      'access_token' => $new_access_token,
+                    );
                 }
             }
             return $success;
         } catch (Google_Service_Exception $e) {
-            $success = array('success' => false, 'message' => "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+            $success = array('isValid' => false, 'message' => "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
             return $success;
         } catch (Exception $e) {
-            $success = array('success' => false, 'message' => "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+            $success = array('isValid' => false, 'message' => "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
             return $success;
         }
     }
@@ -88,8 +102,8 @@ class GoogleClientApi {
         return $valid;
     }
 
-    public function getVerification($pid, $access_token) {
-        $success = array('success' => false);
+    public function getVerificationStatus($pid, $access_token) {
+        $status_result = array('status' => false);
         try {
             $client = new \Google_Client();
             $client->setClientId($this->OAUTH2_CLIENT_ID);
@@ -108,25 +122,35 @@ class GoogleClientApi {
 
                     if (count($channelResponse['items']) >= 0) {
                         $is_verified = $channelResponse['items'][0]['status']['longUploadsStatus'];
-                        $success = array('success' => true, 'is_verified' => $is_verified);
+                        $status_result = array(
+                          'status' => true,
+                          'is_verified' => $is_verified,
+                        );
                     } else {
-                        $success = array('success' => false, 'message' => 'Channel is not verified.');
+                        $status_result = array(
+                          'status' => false,
+                          'message' => 'Channel is not verified.',
+                        );
                     }
-                    return $success;
+                    return $status_result;
                 } catch (Google_Service_Exception $e) {
-                    throw new SmhAPIException('google_api_error', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+                    $error = array('Google', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+                    throw new SmhAPIException('socail_media_api_error', $error);
                 } catch (Google_Exception $e) {
-                    throw new SmhAPIException('google_api_error', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+                    $error = array('Google', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+                    throw new SmhAPIException('socail_media_api_error', $error);
                 }
             }
         } catch (Google_Service_Exception $e) {
-            throw new SmhAPIException('google_api_error', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+            $error = array('Google', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+            throw new SmhAPIException('socail_media_api_error', $error);
         } catch (Exception $e) {
-            throw new SmhAPIException('google_api_error', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+            $error = array('Google', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+            throw new SmhAPIException('socail_media_api_error', $error);
         }
     }
 
-    public function isLsEnabled($pid, $access_token) {
+    public function isLiveStreamEnabled($pid, $access_token) {
         $success = array('success' => false);
         try {
             $client = new \Google_Client();
@@ -146,21 +170,29 @@ class GoogleClientApi {
                     ));
 
                     if (count($broadcastsResponse['items']) >= 0) {
-                        $success = array('success' => true);
+                        $success = array(
+                          'success' => true,
+                        );
                     } else {
-                        $success = array('success' => false);
+                        $success = array(
+                          'success' => false,
+                        );
                     }
                     return $success;
                 } catch (Google_Service_Exception $e) {
-                    throw new SmhAPIException('google_api_error', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+                    $error = array('Google', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+                    throw new SmhAPIException('socail_media_api_error', $error);
                 } catch (Google_Exception $e) {
-                    throw new SmhAPIException('google_api_error', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+                    $error = array('Google', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+                    throw new SmhAPIException('socail_media_api_error', $error);
                 }
             }
         } catch (Google_Service_Exception $e) {
-            throw new SmhAPIException('google_api_error', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+            $error = array('Google', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+            throw new SmhAPIException('socail_media_api_error', $error);
         } catch (Exception $e) {
-            throw new SmhAPIException('google_api_error', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+            $error = array('Google', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+            throw new SmhAPIException('socail_media_api_error', $error);
         }
     }
 

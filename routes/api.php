@@ -22,7 +22,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 // Protected with smhAuth Middleware
 Route::middleware('smhAuth')->group(function () {
     // Get users' social network config
-    Route::get('sn/{action}/pid/{partner_id}/ks/{ks}/projection/{projection}', 'SnConfigController@show');
+    Route::get('sn/{action}/pid/{partner_id}/ks/{ks}/projection/{projection}', 'SocialNetworkConfigurationController@show');
 });
 
 // Throw exception if endpoint does not match

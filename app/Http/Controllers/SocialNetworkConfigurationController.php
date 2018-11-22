@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\GoogleController;
-use App\YoutubeChannel;
-use App\TwitchChannel;
-use App\Http\Resources\SnConfigResource;
+use App\Libraries\SocialMedia\GoogleClientApi;
+use App\Libraries\SocialMedia\TwitchClientApi;
+use App\SocialNetworkServices\Youtube;
+use App\SocialNetworkServices\Twitch;
+use App\Http\Resources\SocialNetworkConfigurationResource;
 use App\Exceptions\SmhAPIException;
 
-class SnConfigController extends Controller {
+class SocialNetworkConfigurationController extends Controller {
 
     /**
      * Display a listing of the resource.
@@ -39,7 +41,7 @@ class SnConfigController extends Controller {
     public function show(Request $request) {
         switch ($request->action) {
             case 'get_config':
-                return $this->getUserSnConfig($request->partner_id, $request->ks, $request->projection);
+                return $this->getUserSocialNetworkConfiguration($request->partner_id, $request->ks, $request->projection);
                 break;
             default:
                 throw new SmhAPIException('action_not_found', $request->action);
@@ -57,20 +59,30 @@ class SnConfigController extends Controller {
     }
 
     // Get a user's social media configurations
-    public function getUserSnConfig($partner_id, $ks, $projection) {
+    public function getUserSocialNetworkConfiguration($partner_id, $ks, $projection) {
         $platform_configs = array();
-        $youtube_channel = new YoutubeChannel();
-        $youtube = $youtube_channel->getPlatformConfig($partner_id, $ks, $projection);
+        $user_data = $this->createUserDataObject($partner_id, $ks, $projection);
 
-        $twitch_channel = new TwitchChannel();
-        $twitch = $twitch_channel->getPlatformConfig($partner_id, $ks);
+        $youtube_channel = new Youtube(new GoogleClientApi);
+        $youtube = $youtube_channel->getConfiguration($user_data);
+
+        $twitch_channel = new Twitch(new TwitchClientApi);
+        $twitch = $twitch_channel->getConfiguration($user_data);
 
         array_push($platform_configs, $youtube, $twitch);
         if ($platform_configs) {
-            return new SnConfigResource($platform_configs);
+            return new SocialNetworkConfigurationResource($platform_configs);
         } else {
             throw new SmhAPIException('config_not_found', $partner_id);
         }
+    }
+
+    protected function createUserDataObject($partner_id, $ks, $projection){
+      $user_data = new \stdClass();
+      $user_data->pid = $partner_id;
+      $user_data->ks = $ks;
+      $user_data->projection = $projection;
+      return $user_data;
     }
 
 }

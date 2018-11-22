@@ -41,15 +41,10 @@ return [
         'title' => 'Not Authorized',
         'detail' => 'You do not have permission to make this request.'
     ],
-    'google_api_error' => [
+    'socail_media_api_error' => [
         'status' => 500,
-        'title' => 'Google API Error',
-        'detail' => 'There was a Google API error: %s'
-    ],
-    'twitch_api_error' => [
-        'status' => 500,
-        'title' => 'Twitch API Error',
-        'detail' => 'There was a Twitch API error: %s'
+        'title' => 'Socail Media API Error',
+        'detail' => 'There was a %s API error: %s'
     ],
     'internal_database_error' => [
         'status' => 500,
@@ -57,4 +52,3 @@ return [
         'detail' => 'There was a database error: %s'
     ]
 ];
-
