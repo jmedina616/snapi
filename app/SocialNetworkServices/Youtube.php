@@ -6,7 +6,7 @@ use App\YoutubeChannel;
 use App\YoutubeChannelSetting;
 use App\SocialNetworkServices\SocialNetwork;
 use App\SocialNetworkServices\SocialPlatform;
-use App\Libraries\SocialMedia\GoogleClientApi;
+use App\Libraries\SocialMedia\SocialMedia as SocialMediaAPI;
 use App\Exceptions\SmhAPIException;
 
 /**
@@ -17,7 +17,7 @@ class Youtube extends SocialPlatform implements SocialNetwork {
   protected $social_media_client_api;
   protected $platform = 'youtube';
 
-  public function __construct(GoogleClientApi $social_media_client_api){
+  public function __construct(SocialMediaAPI $social_media_client_api){
     $this->social_media_client_api = $social_media_client_api;
   }
 
@@ -250,9 +250,9 @@ class Youtube extends SocialPlatform implements SocialNetwork {
 
   protected function updateDbLiveStreamStatus($pid, $ls_enabled) {
       $success = false;
-      $youtube_data = self::where('partner_id', '=', $pid)->first();
+      $youtube_data = YoutubeChannel::where('partner_id', '=', $pid)->first();
       if ($youtube_data) {
-          $youtube_data->ls_enabled = $ls_enabled;
+          $youtube_data->is_enabled = $ls_enabled;
 
           if ($youtube_data->save()) {
               $success = true;

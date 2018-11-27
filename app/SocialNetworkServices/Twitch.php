@@ -6,7 +6,7 @@ use App\TwitchChannel;
 use App\TwitchChannelSetting;
 use App\SocialNetworkServices\SocialNetwork;
 use App\SocialNetworkServices\SocialPlatform;
-use App\Libraries\SocialMedia\TwitchClientApi;
+use App\Libraries\SocialMedia\SocialMedia as SocialMediaAPI;
 use App\Exceptions\SmhAPIException;
 
 /**
@@ -17,7 +17,7 @@ class Twitch extends SocialPlatform implements SocialNetwork {
   protected $social_media_client_api;
   protected $platform = 'twitch';
 
-  public function __construct(TwitchClientApi $social_media_client_api){
+  public function __construct(SocialMediaAPI $social_media_client_api){
     $this->social_media_client_api = $social_media_client_api;
   }
 

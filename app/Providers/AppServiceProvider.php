@@ -34,6 +34,13 @@ class AppServiceProvider extends ServiceProvider {
      */
     public function register() {
         //
+        $this->app->when('App\SocialNetworkServices\Youtube')
+                ->needs('App\Libraries\SocialMedia\SocialMedia')
+                ->give('App\Libraries\SocialMedia\GoogleClientApi');
+
+        $this->app->when('App\SocialNetworkServices\Twitch')
+                ->needs('App\Libraries\SocialMedia\SocialMedia')
+                ->give('App\Libraries\SocialMedia\TwitchClientApi');
     }
 
 }

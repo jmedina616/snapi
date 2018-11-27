@@ -3,11 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\GoogleController;
-use App\Libraries\SocialMedia\GoogleClientApi;
-use App\Libraries\SocialMedia\TwitchClientApi;
-use App\SocialNetworkServices\Youtube;
-use App\SocialNetworkServices\Twitch;
 use App\Http\Resources\SocialNetworkConfigurationResource;
 use App\Exceptions\SmhAPIException;
 
@@ -62,12 +57,8 @@ class SocialNetworkConfigurationController extends Controller {
     public function getUserSocialNetworkConfiguration($partner_id, $ks, $projection) {
         $platform_configs = array();
         $user_data = $this->createUserDataObject($partner_id, $ks, $projection);
-
-        $youtube_channel = new Youtube(new GoogleClientApi);
-        $youtube = $youtube_channel->getConfiguration($user_data);
-
-        $twitch_channel = new Twitch(new TwitchClientApi);
-        $twitch = $twitch_channel->getConfiguration($user_data);
+        $youtube = \App::make('App\SocialNetworkServices\Youtube')->getConfiguration($user_data);
+        $twitch = \App::make('App\SocialNetworkServices\Twitch')->getConfiguration($user_data);
 
         array_push($platform_configs, $youtube, $twitch);
         if ($platform_configs) {
