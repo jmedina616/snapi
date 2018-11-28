@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class TwitchChannel extends Model {
 
+    public function channelSettings() {
+        return $this->hasOne('App\TwitchChannelSetting', 'partner_id', 'partner_id');
+    }
+
 }
