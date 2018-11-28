@@ -4,17 +4,18 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/xampp/htdocs/snapi/routes/api.php</file>
+            <file>file:/C:/xampp/htdocs/snapi/app/Exceptions/SmhAPIException.php</file>
+            <file>file:/C:/xampp/htdocs/snapi/app/Http/Controllers/SocialNetworkConfigurationController.php</file>
+            <file>file:/C:/xampp/htdocs/snapi/app/TwitchChannel.php</file>
+            <file>file:/C:/xampp/htdocs/snapi/storage/logs/laravel.log</file>
+            <file>file:/C:/xampp/htdocs/snapi/app/SocialNetworkServices/Youtube.php</file>
             <file>file:/C:/xampp/htdocs/snapi/app/Exceptions/Handler.php</file>
             <file>file:/C:/xampp/htdocs/snapi/app/Exceptions/CustomException.php</file>
             <file>file:/C:/xampp/htdocs/snapi/app/Http/Middleware/SmhAuth.php</file>
             <file>file:/C:/xampp/htdocs/snapi/.env</file>
             <file>file:/C:/xampp/htdocs/snapi/app/Http/Middleware/LogRequests.php</file>
-            <file>file:/C:/xampp/htdocs/snapi/app/Exceptions/SmhAPIException.php</file>
-            <file>file:/C:/xampp/htdocs/snapi/app/YoutubeChannelSetting.php</file>
             <file>file:/C:/xampp/htdocs/snapi/config/errors.php</file>
-            <file>file:/C:/xampp/htdocs/snapi/app/TwitchChannel.php</file>
-            <file>file:/C:/xampp/htdocs/snapi/storage/logs/laravel.log</file>
-            <file>file:/C:/xampp/htdocs/snapi/app/YoutubeChannel.php</file>
+            <file>file:/C:/xampp/htdocs/snapi/app/Providers/AppServiceProvider.php</file>
         </group>
     </open-files>
 </project-private>

@@ -36,7 +36,7 @@ class SocialNetworkConfigurationController extends Controller {
     public function show(Request $request) {
         switch ($request->action) {
             case 'get_config':
-                return $this->getUserSocialNetworkConfiguration($request->partner_id, $request->ks, $request->projection);
+                return $this->getUserSocialNetworkConfiguration($request);
                 break;
             default:
                 throw new SmhAPIException('action_not_found', $request->action);
@@ -54,9 +54,9 @@ class SocialNetworkConfigurationController extends Controller {
     }
 
     // Get a user's social media configurations
-    public function getUserSocialNetworkConfiguration($partner_id, $ks, $projection) {
+    public function getUserSocialNetworkConfiguration($request) {
         $platform_configs = array();
-        $user_data = $this->createUserDataObject($partner_id, $ks, $projection);
+        $user_data = $this->createUserDataObject($request->partner_id, $request->ks, $request->projection);
         $youtube = \App::make('App\SocialNetworkServices\Youtube')->getConfiguration($user_data);
         $twitch = \App::make('App\SocialNetworkServices\Twitch')->getConfiguration($user_data);
 
@@ -64,7 +64,7 @@ class SocialNetworkConfigurationController extends Controller {
         if ($platform_configs) {
             return new SocialNetworkConfigurationResource($platform_configs);
         } else {
-            throw new SmhAPIException('config_not_found', $partner_id);
+            throw new SmhAPIException('config_not_found', $request->partner_id);
         }
     }
 
