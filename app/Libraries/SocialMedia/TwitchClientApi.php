@@ -67,7 +67,7 @@ class TwitchClientApi implements SocialMedia {
                 'refresh_token' => $token['refresh_token'],
                 'scope' => $scope,
             );
-            $response = $this->curlPost($url, $data);
+            $response = $this->makeRefreshTokenRequest($url, $data);
             $new_token = array(
                 'access_token' => $response['access_token'],
                 'refresh_token' => $response['refresh_token'],
