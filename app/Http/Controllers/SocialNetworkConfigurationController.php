@@ -34,12 +34,16 @@ class SocialNetworkConfigurationController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function show(Request $request) {
-        switch ($request->action) {
-            case 'get_config':
-                return $this->getUserSocialNetworkConfiguration($request);
-                break;
-            default:
-                throw new SmhAPIException('action_not_found', $request->action);
+        $user_data = $this->createUserDataObject($request->partner_id, $request->ks, $request->projection);
+        $youtube = \App::make('App\SocialNetworkServices\Youtube')->getConfiguration($user_data);
+        $twitch = \App::make('App\SocialNetworkServices\Twitch')->getConfiguration($user_data);
+
+        $platform_configs = array();
+        array_push($platform_configs, $youtube, $twitch);
+        if ($platform_configs) {
+            return new SocialNetworkConfigurationResource($platform_configs);
+        } else {
+            throw new SmhAPIException('config_not_found', $request->partner_id);
         }
     }
 
@@ -49,31 +53,17 @@ class SocialNetworkConfigurationController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id) {
+    public function destroy(Request $request) {
         //
+        return 'true';
     }
 
-    // Get a user's social media configurations
-    public function getUserSocialNetworkConfiguration($request) {
-        $platform_configs = array();
-        $user_data = $this->createUserDataObject($request->partner_id, $request->ks, $request->projection);
-        $youtube = \App::make('App\SocialNetworkServices\Youtube')->getConfiguration($user_data);
-        $twitch = \App::make('App\SocialNetworkServices\Twitch')->getConfiguration($user_data);
-
-        array_push($platform_configs, $youtube, $twitch);
-        if ($platform_configs) {
-            return new SocialNetworkConfigurationResource($platform_configs);
-        } else {
-            throw new SmhAPIException('config_not_found', $request->partner_id);
-        }
-    }
-
-    protected function createUserDataObject($partner_id, $ks, $projection){
-      $user_data = new \stdClass();
-      $user_data->pid = $partner_id;
-      $user_data->ks = $ks;
-      $user_data->projection = $projection;
-      return $user_data;
+    protected function createUserDataObject($partner_id, $ks, $projection) {
+        $user_data = new \stdClass();
+        $user_data->pid = $partner_id;
+        $user_data->ks = $ks;
+        $user_data->projection = $projection;
+        return $user_data;
     }
 
 }

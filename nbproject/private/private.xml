@@ -12,10 +12,13 @@
             <file>file:/C:/xampp/htdocs/snapi/app/Libraries/SocialMedia/TwitchClientApi.php</file>
             <file>file:/C:/xampp/htdocs/snapi/app/Exceptions/Handler.php</file>
             <file>file:/C:/xampp/htdocs/snapi/app/Exceptions/CustomException.php</file>
+            <file>file:/C:/xampp/htdocs/snapi/app/TwitchChannelSetting.php</file>
             <file>file:/C:/xampp/htdocs/snapi/app/Http/Middleware/SmhAuth.php</file>
             <file>file:/C:/xampp/htdocs/snapi/app/Http/Middleware/LogRequests.php</file>
             <file>file:/C:/xampp/htdocs/snapi/app/Libraries/SocialMedia/GoogleClientApi.php</file>
+            <file>file:/C:/xampp/htdocs/snapi/app/YoutubeChannelSetting.php</file>
             <file>file:/C:/xampp/htdocs/snapi/config/errors.php</file>
+            <file>file:/C:/xampp/htdocs/snapi/app/YoutubeChannel.php</file>
         </group>
     </open-files>
 </project-private>

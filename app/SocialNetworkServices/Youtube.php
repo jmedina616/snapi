@@ -2,6 +2,8 @@
 
 namespace App\SocialNetworkServices;
 
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
+
 use App\YoutubeChannel;
 use App\YoutubeChannelSetting;
 use App\SocialNetworkServices\SocialNetwork;
@@ -200,7 +202,7 @@ class Youtube extends SocialPlatform implements SocialNetwork {
           $platform_data['thumbnail'] = $youtube_data->thumbnail;
           $platform_data['channel_id'] = smhDecrypt($youtube_data->channel_id);
           $platform_data['is_verified'] = $youtube_data->is_verified;
-          $platform_data['ls_enabled'] = $youtube_data->is_enabled;
+          $platform_data['ls_enabled'] = $youtube_data->ls_enabled;
           $platform_data['access_token'] = smhDecrypt($youtube_data->access_token);
           $platform_data['refresh_token'] = smhDecrypt($youtube_data->refresh_token);
           $platform_data['token_type'] = $youtube_data->token_type;
@@ -241,8 +243,8 @@ class Youtube extends SocialPlatform implements SocialNetwork {
 
   protected function isLiveStreamEnabled($pid, $access_token) {
       $enabled = false;
-      $is_enabled = $this->social_media_client_api->isLiveStreamEnabled($access_token);
-      if ($is_enabled) {
+      $ls_enabled = $this->social_media_client_api->isLiveStreamEnabled($access_token);
+      if ($ls_enabled) {
           $enabled = true;
       }
       return $success;
@@ -252,7 +254,7 @@ class Youtube extends SocialPlatform implements SocialNetwork {
       $success = false;
       $youtube_data = YoutubeChannel::where('partner_id', '=', $pid)->first();
       if ($youtube_data) {
-          $youtube_data->is_enabled = $ls_enabled;
+          $youtube_data->ls_enabled = $ls_enabled;
 
           if ($youtube_data->save()) {
               $success = true;

@@ -14,7 +14,6 @@ class SocialNetworkConfigurationResource extends JsonResource {
      */
     public function toArray($request) {
         return [
-            'success' => true,
             'platforms' => $this->resource
         ];
     }

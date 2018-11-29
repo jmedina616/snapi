@@ -87,7 +87,7 @@ class GoogleClientApi implements SocialMedia {
 
     public function validateToken($token) {
         $valid = false;
-        $client = new \GuzzleHttp\Client();
+        $client = new \GuzzleHttp\Client(['http_errors' => false]);
         $request = $client->get("https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=" . $token);
         $response = json_decode($request->getBody());
 

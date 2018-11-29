@@ -81,7 +81,7 @@ class TwitchClientApi implements SocialMedia {
     }
 
     public function makeRefreshTokenRequest($url, $data) {
-        $client = new \GuzzleHttp\Client();
+        $client = new \GuzzleHttp\Client(['http_errors' => false]);
         $options = [
             'form_params' => $data
         ];
@@ -91,7 +91,7 @@ class TwitchClientApi implements SocialMedia {
     }
 
     public function validateToken($url, $access_token) {
-        $client = new \GuzzleHttp\Client();
+        $client = new \GuzzleHttp\Client(['http_errors' => false]);
         $options = [
             'headers' => [
                 'Accept' => 'application/vnd.twitchtv.v5+json',

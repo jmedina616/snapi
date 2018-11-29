@@ -20,7 +20,7 @@ class CreateYoutubeChannelsTable extends Migration {
             $table->string('thumbnail', 255);
             $table->longText('channel_id');
             $table->string('is_verified', 100);
-            $table->integer('is_enabled');
+            $table->integer('ls_enabled');
             $table->longText('access_token');
             $table->longText('refresh_token');
             $table->string('token_type', 100);
