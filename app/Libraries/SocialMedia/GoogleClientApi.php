@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Log;
 use App\Exceptions\SmhAPIException;
 use App\Libraries\SocialMedia\SocialMedia;
 
+//Google API class
 class GoogleClientApi implements SocialMedia {
 
     protected $OAUTH2_CLIENT_ID;
@@ -18,6 +19,7 @@ class GoogleClientApi implements SocialMedia {
         $this->REDIRECT_URL = env('GOOGLE_REDIRECT_URI');
     }
 
+    //Builds and returns the redirect URL
     public function getRedirectURL($user_data) {
         try {
             $client = new \Google_Client();
@@ -40,6 +42,7 @@ class GoogleClientApi implements SocialMedia {
         }
     }
 
+    //Check if access token is valid, if not, use refresh token to generate new access token
     public function checkAuthToken($pid, $token) {
         $success = array('isValid' => false);
         try {
@@ -53,6 +56,7 @@ class GoogleClientApi implements SocialMedia {
             $client->setRedirectUri($redirect);
             $client->setAccessToken($token);
 
+            //If access token is valid, return the token
             if ($this->validateToken($token['access_token'])) {
                 $success = array(
                     'isValid' => true,
@@ -60,12 +64,14 @@ class GoogleClientApi implements SocialMedia {
                     'access_token' => $token,
                 );
             } else {
+                //If access token is not valid, use refresh token to get new access token
                 $check_refresh_token = $client->refreshToken($token['refresh_token']);
                 if (isset($check_refresh_token['error'])) {
                     $success = array(
                         'isValid' => false,
                         'message' => $check_refresh_token['error_description'],
                     );
+                    Log::error('Something went wrong with the youtube refresh token: ' . $check_refresh_token['error_description']);
                 } else {
                     $new_access_token = $client->getAccessToken();
                     $success = array(
@@ -85,6 +91,7 @@ class GoogleClientApi implements SocialMedia {
         }
     }
 
+    //Determines if access token is valid
     public function validateToken($token) {
         $valid = false;
         $client = new \GuzzleHttp\Client(['http_errors' => false]);
@@ -100,6 +107,7 @@ class GoogleClientApi implements SocialMedia {
         return $valid;
     }
 
+    //Checks if channel is verified
     public function getVerificationStatus($pid, $access_token) {
         $status_result = array('status' => false);
         try {
@@ -148,6 +156,7 @@ class GoogleClientApi implements SocialMedia {
         }
     }
 
+    //Checks if live streaming is enabled
     public function isLiveStreamEnabled($pid, $access_token) {
         $success = array('success' => false);
         try {

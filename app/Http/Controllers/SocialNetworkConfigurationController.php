@@ -34,10 +34,14 @@ class SocialNetworkConfigurationController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function show(Request $request) {
+        //Create the user data object
         $user_data = $this->createUserDataObject($request->partner_id, $request->ks, $request->projection);
+        
+        //Get user's social media configurations
         $youtube = \App::make('App\SocialNetworkServices\Youtube')->getConfiguration($user_data);
         $twitch = \App::make('App\SocialNetworkServices\Twitch')->getConfiguration($user_data);
 
+        //Build and return social media configurations array
         $platform_configs = array();
         array_push($platform_configs, $youtube, $twitch);
         if ($platform_configs) {
@@ -55,9 +59,9 @@ class SocialNetworkConfigurationController extends Controller {
      */
     public function destroy(Request $request) {
         //
-        return 'true';
     }
 
+    //Creates a user data object
     protected function createUserDataObject($partner_id, $ks, $projection) {
         $user_data = new \stdClass();
         $user_data->pid = $partner_id;

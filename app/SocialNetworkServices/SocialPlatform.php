@@ -4,6 +4,7 @@ namespace App\SocialNetworkServices;
 
 abstract class SocialPlatform {
 
+    //Creates the platform object
       protected function createPlatformObject ($platform = null, $authorized = false, $channel_details = null, $settings = null, $redirect_url = null){
         $platform_obj = new \stdClass();
         if($authorized){

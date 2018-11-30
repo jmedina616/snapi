@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Http\Request;
-use App\Exceptions\SmhAPIException;
 
 /*
   |--------------------------------------------------------------------------
@@ -22,16 +21,11 @@ use App\Exceptions\SmhAPIException;
 // Protected with smhAuth Middleware
 Route::middleware('smhAuth')->group(function () {
     Route::prefix('sn')->group(function () {
-        // Get users' social network config
+        // Get users' social network configuration
         Route::get('/configuration/pid/{partner_id}/ks/{ks}/projection/{projection}', 'SocialNetworkConfigurationController@show');
-        
-        //Remove platform authentication
-        Route::delete('/configuration/pid/{partner_id}/ks/{ks}/platform/{platform}', 'SocialNetworkConfigurationController@destroy');
     });
 });
 
 
 // Throw exception if endpoint does not match
-Route::fallback(function() {
-    throw new SmhAPIException('endpoint_not_found');
-});
+Route::fallback('SmhApiController@notFound');

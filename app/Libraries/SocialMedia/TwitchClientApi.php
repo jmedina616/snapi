@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Log;
 use App\Exceptions\SmhAPIException;
 use App\Libraries\SocialMedia\SocialMedia;
 
+//Twitch API class
 class TwitchClientApi implements SocialMedia {
 
     protected $OAUTH2_CLIENT_ID;
@@ -18,6 +19,7 @@ class TwitchClientApi implements SocialMedia {
         $this->REDIRECT_URI = env('TWITCH_REDIRECT_URI');
     }
 
+    //Builds and returns the redirect URL
     public function getRedirectURL($user_data) {
         $state = $user_data->pid . "|" . $user_data->ks;
         $scope = 'channel_editor+channel_read+channel_stream+collections_edit+user_read';
@@ -25,12 +27,14 @@ class TwitchClientApi implements SocialMedia {
         return $authUrl;
     }
 
+    //Check if access token is valid, if not, use refresh token to generate new access token
     public function checkAuthToken($pid, $token) {
         $success = array('isValid' => false);
         $url = 'https://api.twitch.tv/kraken';
         $response = $this->validateToken($url, $token['access_token']);
         if (isset($response['error'])) {
             if ($response['status'] == 401) {
+                //If access token is not valid, use refresh token to get new access token
                 $new_access_token = $this->refreshToken($pid, $token);
                 if ($new_access_token['success']) {
                     $success = array(
@@ -45,7 +49,9 @@ class TwitchClientApi implements SocialMedia {
                     );
                 }
             }
-        } else if ($response['token']['valid']) {
+        }
+        //If access token is valid, return the token
+        else if ($response['token']['valid']) {
             $success = array(
                 'isValid' => true,
                 'message' => 'valid_access_token',
@@ -55,6 +61,21 @@ class TwitchClientApi implements SocialMedia {
         return $success;
     }
 
+    //Determines if access token is valid
+    public function validateToken($url, $access_token) {
+        $client = new \GuzzleHttp\Client(['http_errors' => false]);
+        $options = [
+            'headers' => [
+                'Accept' => 'application/vnd.twitchtv.v5+json',
+                'Authorization' => 'OAuth ' . $access_token
+            ]
+        ];
+        $request = $client->get($url, $options);
+        $response = json_decode($request->getBody(), true);
+        return $response;
+    }
+
+    //Gets new access token by using the refresh token
     public function refreshToken($pid, $token) {
         $success = array('success' => false);
         try {
@@ -80,25 +101,13 @@ class TwitchClientApi implements SocialMedia {
         }
     }
 
+    //Makes the refresh token request
     public function makeRefreshTokenRequest($url, $data) {
         $client = new \GuzzleHttp\Client(['http_errors' => false]);
         $options = [
             'form_params' => $data
         ];
         $request = $client->post($url, $options);
-        $response = json_decode($request->getBody(), true);
-        return $response;
-    }
-
-    public function validateToken($url, $access_token) {
-        $client = new \GuzzleHttp\Client(['http_errors' => false]);
-        $options = [
-            'headers' => [
-                'Accept' => 'application/vnd.twitchtv.v5+json',
-                'Authorization' => 'OAuth ' . $access_token
-            ]
-        ];
-        $request = $client->get($url, $options);
         $response = json_decode($request->getBody(), true);
         return $response;
     }
