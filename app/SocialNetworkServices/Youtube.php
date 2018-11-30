@@ -66,7 +66,7 @@ class Youtube extends SocialPlatform implements SocialNetwork {
     }
 
     //Build and return settings array
-    protected function getSettings($data) {
+    public function getSettings($data) {
         //Default setttings
         $settings = array(
             'embed_status' => false,
@@ -147,7 +147,7 @@ class Youtube extends SocialPlatform implements SocialNetwork {
     }
 
     //Checks if access token is valid, if not, use refresh token to generate a new access token
-    protected function validateToken($pid, $token) {
+    public function validateToken($pid, $token) {
         //Default settings
         $validation_result = array(
             'isValid' => false,
@@ -201,7 +201,7 @@ class Youtube extends SocialPlatform implements SocialNetwork {
     }
 
     //Builds and returns platform data from DB
-    protected function getPlatformData($pid) {
+    public function getPlatformData($pid) {
         $platform_data = array();
         $youtube_data = YoutubeChannel::where('partner_id', '=', $pid)->first();
         if ($youtube_data) {

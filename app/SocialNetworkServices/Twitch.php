@@ -65,7 +65,7 @@ class Twitch extends SocialPlatform implements SocialNetwork {
     }
 
     //Build and return settings array
-    protected function getSettings($data) {
+    public function getSettings($data) {
         $settings = array(
             'auto_upload' => false,
         );
@@ -80,7 +80,7 @@ class Twitch extends SocialPlatform implements SocialNetwork {
     }
 
     //Checks if access token is valid, if not, use refresh token to generate a new access token
-    protected function validateToken($pid, $token) {
+    public function validateToken($pid, $token) {
         $validation_result = array(
             'isValid' => false,
         );
@@ -131,7 +131,7 @@ class Twitch extends SocialPlatform implements SocialNetwork {
     }
 
     //Builds and returns platform data from DB
-    protected function getPlatformData($pid) {
+    public function getPlatformData($pid) {
         $platform_data = array();
         $twitch_data = TwitchChannel::where('partner_id', '=', $pid)->first();
         if ($twitch_data) {
