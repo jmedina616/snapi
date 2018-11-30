@@ -16,13 +16,13 @@ use Illuminate\Http\Request;
 //Route::middleware('auth:api')->get('/user', function (Request $request) {
 //    return $request->user();
 //});
-
-
 // Protected with smhAuth Middleware
 Route::middleware('smhAuth')->group(function () {
     Route::prefix('sn')->group(function () {
         // Get users' social network configuration
         Route::get('/configuration/pid/{partner_id}/ks/{ks}/projection/{projection}', 'SocialNetworkConfigurationController@show');
+        //Remove platform authentication
+        Route::delete('/configuration/pid/{partner_id}/ks/{ks}/platform/{platform}', 'SocialNetworkConfigurationController@destroy');
     });
 });
 

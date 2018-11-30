@@ -59,6 +59,7 @@ class SocialNetworkConfigurationController extends Controller {
      */
     public function destroy(Request $request) {
         //
+        return 'true';
     }
 
     //Creates a user data object
