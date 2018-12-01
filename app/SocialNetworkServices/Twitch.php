@@ -145,4 +145,9 @@ class Twitch extends SocialPlatform implements SocialNetwork {
         return $platform_data;
     }
 
+    //Removes platform authorization and configuration from DB
+    public function remove_platform_authorization($pid) {
+        $platform_data = $this->getPlatformData($pid);
+    }
+
 }

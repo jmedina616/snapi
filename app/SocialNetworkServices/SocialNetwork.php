@@ -7,4 +7,5 @@ interface SocialNetwork {
   public function getSettings($data);
   public function validateToken($pid, $token);
   public function getPlatformData($pid);
+  public function remove_platform_authorization($pid);
 }

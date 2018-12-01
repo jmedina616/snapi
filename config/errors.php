@@ -31,6 +31,11 @@ return [
         'title' => 'Action Not Found',
         'detail' => 'The requested action \'%s\' could not be found.'
     ],
+    'platform_not_found' => [
+        'status' => 404,
+        'title' => 'Platform Not Found',
+        'detail' => 'The requested platform \'%s\' could not be found.'
+    ],
     'endpoint_not_found' => [
         'status' => 404,
         'title' => 'Endpoint Not Found',
@@ -40,6 +45,11 @@ return [
         'status' => 403,
         'title' => 'Not Authorized',
         'detail' => 'You do not have permission to make this request.'
+    ],
+    'service_not_authorized' => [
+        'status' => 403,
+        'title' => 'Service Not Authorized',
+        'detail' => 'You do not have permission to access this service.'
     ],
     'socail_media_api_error' => [
         'status' => 500,

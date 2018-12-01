@@ -8,6 +8,7 @@ use App\SocialNetworkServices\SocialNetwork;
 use App\SocialNetworkServices\SocialPlatform;
 use App\Libraries\SocialMedia\SocialMedia as SocialMediaAPI;
 use App\Exceptions\SmhAPIException;
+use Log;
 
 //Youtube service class
 class Youtube extends SocialPlatform implements SocialNetwork {
@@ -36,8 +37,8 @@ class Youtube extends SocialPlatform implements SocialNetwork {
                 $settings = $this->getSettings($settings_obj);
                 //Create platform object
                 $platform = $this->createPlatformObject($this->platform, $authorized['isValid'], $channel_details, $settings, null);
-            } else {
                 //Create platform object with redirect URL
+            } else {
                 $platform = $this->createPlatformObject($this->platform, $authorized['isValid'], null, null, $this->social_media_client_api->getRedirectURL($user_data));
             }
         } else {
@@ -73,7 +74,7 @@ class Youtube extends SocialPlatform implements SocialNetwork {
             'auto_upload' => false,
             'projection' => 'rectangular',
         );
-        $settings_data = YoutubeChannelSetting::where('partner_id', '=', $data->pid)->first();
+        $settings_data = YoutubeChannelSetting::where('youtube_channel_id', '=', $data->platform_data['id'])->first();
         if ($settings_data) {
             //Check if channel is verified
             $is_verified = $this->getVerificationStatus($data->pid, $data->access_token, $data->platform_data['is_verified']);
@@ -205,6 +206,7 @@ class Youtube extends SocialPlatform implements SocialNetwork {
         $platform_data = array();
         $youtube_data = YoutubeChannel::where('partner_id', '=', $pid)->first();
         if ($youtube_data) {
+            $platform_data['id'] = $youtube_data->id;
             $platform_data['partner_id'] = $youtube_data->partner_id;
             $platform_data['name'] = $youtube_data->name;
             $platform_data['thumbnail'] = $youtube_data->thumbnail;
@@ -281,6 +283,11 @@ class Youtube extends SocialPlatform implements SocialNetwork {
         }
 
         return $success;
+    }
+
+    //Removes platform authorization and configuration from DB
+    public function remove_platform_authorization($pid) {
+        $platform_data = $this->getPlatformData($pid);
     }
 
 }
