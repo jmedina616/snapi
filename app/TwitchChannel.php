@@ -11,7 +11,7 @@ class TwitchChannel extends Model {
     protected $fillable = ['partner_id', 'name', 'channel_id', 'logo', 'access_token', 'refresh_token'];
 
     public function channelSettings() {
-        return $this->hasOne('App\TwitchChannelSetting', 'partner_id', 'partner_id');
+        return $this->hasOne('App\TwitchChannelSetting');
     }
 
 }

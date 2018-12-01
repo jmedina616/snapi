@@ -32,8 +32,7 @@ class Twitch extends SocialPlatform implements SocialNetwork {
                 //Create channel details array
                 $channel_details = $this->createChannelDetails($platform_data);
                 //Create channel settings array
-                $settings_obj = $this->createSettingsObject($user_data->pid);
-                $settings = $this->getSettings($settings_obj);
+                $settings = $this->getSettings($platform_data['id']);
                 //Create platform object
                 $platform = $this->createPlatformObject($this->platform, $authorized['isValid'], $channel_details, $settings, null);
             } else {
@@ -57,19 +56,12 @@ class Twitch extends SocialPlatform implements SocialNetwork {
         );
     }
 
-    //Creates settings object
-    protected function createSettingsObject($pid) {
-        $settings_obj = new \stdClass();
-        $settings_obj->pid = $pid;
-        return $settings_obj;
-    }
-
     //Build and return settings array
-    public function getSettings($data) {
+    public function getSettings($id) {
         $settings = array(
             'auto_upload' => false,
         );
-        $settings_data = TwitchChannelSetting::where('partner_id', '=', $data->pid)->first();
+        $settings_data = TwitchChannelSetting::where('twitch_channel_id', '=', $id)->first();
         if ($settings_data) {
             $auto_upload = (bool) $settings_data->auto_upload;
             $settings = array(
@@ -135,6 +127,7 @@ class Twitch extends SocialPlatform implements SocialNetwork {
         $platform_data = array();
         $twitch_data = TwitchChannel::where('partner_id', '=', $pid)->first();
         if ($twitch_data) {
+            $platform_data['id'] = $twitch_data->id;
             $platform_data['partner_id'] = $twitch_data->partner_id;
             $platform_data['name'] = $twitch_data->name;
             $platform_data['channel_id'] = smhDecrypt($twitch_data->channel_id);
