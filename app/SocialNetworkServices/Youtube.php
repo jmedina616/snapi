@@ -175,8 +175,7 @@ class Youtube extends SocialPlatform implements SocialNetwork {
                 }
             }
         } else {
-            $error = array('Google', $token_validation['message']);
-            throw new SmhAPIException('socail_media_api_error', $error);
+            throw new SmhAPIException('socail_media_api_error', $$token_validation['message']);
         }
         return $validation_result;
     }
@@ -286,8 +285,30 @@ class Youtube extends SocialPlatform implements SocialNetwork {
     }
 
     //Removes platform authorization and configuration from DB
-    public function remove_platform_authorization($pid) {
+    public function removePlatformAuthorization($pid) {
         $platform_data = $this->getPlatformData($pid);
+        if (count($platform_data) > 0) {
+            //Check if the user's access token is still valid
+            $authorized = $this->validateToken($pid, $platform_data);
+            if ($authorized['isValid']) {
+                //Revoke access to youtube account
+                $removeAuthorization = $this->social_media_client_api->removeAuthorization($authorized['access_token']);
+                if ($removeAuthorization['success']) {
+                    $youtube = YoutubeChannel::where('partner_id', '=', $pid)->first();
+                    if ($youtube->delete()) {
+                        return 'true';
+                    } else {
+                        throw new SmhAPIException('internal_database_error', 'Could not delete YouTube channel for account \'' . $pid . '\'');
+                    }
+                } else {
+                    throw new SmhAPIException('socail_media_api_error', $removeAuthorization['message']);
+                }
+            } else {
+                throw new SmhAPIException('socail_media_api_error', 'Could not validate youtube access token.');
+            }
+        } else {
+            throw new SmhAPIException('account_not_found', $pid);
+        }
     }
 
 }

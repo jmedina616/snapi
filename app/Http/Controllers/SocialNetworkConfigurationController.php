@@ -61,10 +61,10 @@ class SocialNetworkConfigurationController extends Controller {
         //Create the user data object
         switch ($request->platform) {
             case 'youtube':
-                return \App::make('App\SocialNetworkServices\Youtube')->remove_platform_authorization($request->partner_id);
+                return \App::make('App\SocialNetworkServices\Youtube')->removePlatformAuthorization($request->partner_id);
                 break;
             case 'twitch':
-                return \App::make('App\SocialNetworkServices\Twitch')->remove_platform_authorization($request->partner_id);
+                return \App::make('App\SocialNetworkServices\Twitch')->removePlatformAuthorization($request->partner_id);
                 break;
             default:
                 throw new SmhAPIException('platform_not_found', $request->platform);

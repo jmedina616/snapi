@@ -96,8 +96,7 @@ class TwitchClientApi implements SocialMedia {
             $success = array('success' => true, 'new_token' => $new_token);
             return $success;
         } catch (Exception $e) {
-            $error = array('Google', "Caught Twitch service Exception " . $e->getCode() . " message is " . $e->getMessage());
-            throw new SmhAPIException('socail_media_api_error', $error);
+            throw new SmhAPIException('socail_media_api_error', "Caught Twitch service Exception " . $e->getCode() . " message is " . $e->getMessage());
         }
     }
 
@@ -110,6 +109,29 @@ class TwitchClientApi implements SocialMedia {
         $request = $client->post($url, $options);
         $response = json_decode($request->getBody(), true);
         return $response;
+    }
+
+    //Revokes access to twitch account
+    public function removeAuthorization($access_token) {
+        $success = array('success' => false);
+        try {
+            $url = 'https://api.twitch.tv/kraken/oauth2/revoke';
+            $data = array('client_id' => $this->OAUTH2_CLIENT_ID, 'token' => $access_token);
+            $client = new \GuzzleHttp\Client(['http_errors' => false]);
+            $options = [
+                'form_params' => $data
+            ];
+            $request = $client->post($url, $options);
+            $response = json_decode($request->getBody(), true);
+            if ($response['status'] === 'ok') {
+                $success = array('success' => true);
+            }
+            return $success;
+        } catch (Exception $e) {
+            Log::error('Something went wrong with removing twitch authorization: ' . $e->getCode() . " message is " . $e->getMessage());
+            $success = array('success' => false, 'message' => "Could not remove twitch authorization.");
+            return $success;
+        }
     }
 
 }

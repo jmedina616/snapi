@@ -17,7 +17,7 @@ use Illuminate\Http\Request;
 //    return $request->user();
 //});
 // Protected with smhAuth Middleware
-Route::group(['middleware' => 'SmhAuth, SmhSocialBroadcastingService'], function () {
+Route::group(['middleware' => ['smhAuth','smhSocialBroadcastingService']], function () {
     Route::prefix('sn')->group(function () {
         // Get users' social network configuration
         Route::get('/configuration/pid/{partner_id}/ks/{ks}', 'SocialNetworkConfigurationController@show');

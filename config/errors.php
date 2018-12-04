@@ -54,7 +54,7 @@ return [
     'socail_media_api_error' => [
         'status' => 500,
         'title' => 'Socail Media API Error',
-        'detail' => 'There was a %s API error: %s'
+        'detail' => 'There was a social media API error: %s'
     ],
     'internal_database_error' => [
         'status' => 500,

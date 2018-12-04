@@ -98,8 +98,7 @@ class Twitch extends SocialPlatform implements SocialNetwork {
                 }
             }
         } else {
-            $error = array('Twitch', $token_validation['message']);
-            throw new SmhAPIException('socail_media_api_error', $error);
+            throw new SmhAPIException('socail_media_api_error', $token_validation['message']);
         }
         return $validation_result;
     }
@@ -139,8 +138,30 @@ class Twitch extends SocialPlatform implements SocialNetwork {
     }
 
     //Removes platform authorization and configuration from DB
-    public function remove_platform_authorization($pid) {
+    public function removePlatformAuthorization($pid) {
         $platform_data = $this->getPlatformData($pid);
+        if (count($platform_data) > 0) {
+            //Check if the user's access token is still valid
+            $authorized = $this->validateToken($pid, $platform_data);
+            if ($authorized['isValid']) {
+                //Revoke access to youtube account
+                $removeAuthorization = $this->social_media_client_api->removeAuthorization($authorized['access_token']);
+                if ($removeAuthorization['success']) {
+                    $twitch = TwitchChannel::where('partner_id', '=', $pid)->first();
+                    if ($twitch->delete()) {
+                        return true;
+                    } else {
+                        throw new SmhAPIException('internal_database_error', 'Could not delete Twitch channel for account \'' . $pid . '\'');
+                    }
+                } else {
+                    throw new SmhAPIException('socail_media_api_error', $removeAuthorization['message']);
+                }
+            } else {
+                throw new SmhAPIException('account_not_found', $pid);
+            }
+        } else {
+            throw new SmhAPIException('socail_media_api_error', 'Could not validate twitch access token.');
+        }
     }
 
 }

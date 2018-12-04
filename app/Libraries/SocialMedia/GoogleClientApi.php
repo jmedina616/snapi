@@ -34,11 +34,9 @@ class GoogleClientApi implements SocialMedia {
             $authUrl = $client->createAuthUrl();
             return $authUrl;
         } catch (Google_Service_Exception $e) {
-            $error = array('Google', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
-            throw new SmhAPIException('socail_media_api_error', $error);
+            throw new SmhAPIException('socail_media_api_error', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
         } catch (Exception $e) {
-            $error = array('Google', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
-            throw new SmhAPIException('socail_media_api_error', $error);
+            throw new SmhAPIException('socail_media_api_error', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
         }
     }
 
@@ -83,10 +81,12 @@ class GoogleClientApi implements SocialMedia {
             }
             return $success;
         } catch (Google_Service_Exception $e) {
-            $success = array('isValid' => false, 'message' => "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+            Log::error('Something went wrong with checking if youtube access token is valid: ' . $e->getCode() . " message is " . $e->getMessage());
+            $success = array('isValid' => false, 'message' => "Could not check if youtube access token is valid.");
             return $success;
         } catch (Exception $e) {
-            $success = array('isValid' => false, 'message' => "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+            Log::error('Something went wrong with checking if youtube access token is valid: ' . $e->getCode() . " message is " . $e->getMessage());
+            $success = array('isValid' => false, 'message' => "Could not check if youtube access token is valid.");
             return $success;
         }
     }
@@ -115,7 +115,7 @@ class GoogleClientApi implements SocialMedia {
             $client->setClientId($this->OAUTH2_CLIENT_ID);
             $client->setClientSecret($this->OAUTH2_CLIENT_SECRET);
             $client->addScope('https://www.googleapis.com/auth/youtube');
-            $redirect = filter_var($this->$REDIRECT_URL, FILTER_SANITIZE_URL);
+            $redirect = filter_var($this->REDIRECT_URL, FILTER_SANITIZE_URL);
             $client->setRedirectUri($redirect);
             $client->setAccessToken($access_token);
 
@@ -140,19 +140,15 @@ class GoogleClientApi implements SocialMedia {
                     }
                     return $status_result;
                 } catch (Google_Service_Exception $e) {
-                    $error = array('Google', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
-                    throw new SmhAPIException('socail_media_api_error', $error);
+                    throw new SmhAPIException('socail_media_api_error', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
                 } catch (Google_Exception $e) {
-                    $error = array('Google', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
-                    throw new SmhAPIException('socail_media_api_error', $error);
+                    throw new SmhAPIException('socail_media_api_error', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
                 }
             }
         } catch (Google_Service_Exception $e) {
-            $error = array('Google', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
-            throw new SmhAPIException('socail_media_api_error', $error);
+            throw new SmhAPIException('socail_media_api_error', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
         } catch (Exception $e) {
-            $error = array('Google', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
-            throw new SmhAPIException('socail_media_api_error', $error);
+            throw new SmhAPIException('socail_media_api_error', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
         }
     }
 
@@ -164,7 +160,7 @@ class GoogleClientApi implements SocialMedia {
             $client->setClientId($this->OAUTH2_CLIENT_ID);
             $client->setClientSecret($this->OAUTH2_CLIENT_SECRET);
             $client->addScope('https://www.googleapis.com/auth/youtube');
-            $redirect = filter_var($this->$REDIRECT_URL, FILTER_SANITIZE_URL);
+            $redirect = filter_var($this->REDIRECT_URL, FILTER_SANITIZE_URL);
             $client->setRedirectUri($redirect);
             $client->setAccessToken($access_token);
 
@@ -187,19 +183,42 @@ class GoogleClientApi implements SocialMedia {
                     }
                     return $success;
                 } catch (Google_Service_Exception $e) {
-                    $error = array('Google', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
-                    throw new SmhAPIException('socail_media_api_error', $error);
+                    throw new SmhAPIException('socail_media_api_error', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
                 } catch (Google_Exception $e) {
-                    $error = array('Google', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
-                    throw new SmhAPIException('socail_media_api_error', $error);
+                    throw new SmhAPIException('socail_media_api_error', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
                 }
             }
         } catch (Google_Service_Exception $e) {
-            $error = array('Google', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
-            throw new SmhAPIException('socail_media_api_error', $error);
+            throw new SmhAPIException('socail_media_api_error', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
         } catch (Exception $e) {
-            $error = array('Google', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
-            throw new SmhAPIException('socail_media_api_error', $error);
+            throw new SmhAPIException('socail_media_api_error', "Caught Google service Exception " . $e->getCode() . " message is " . $e->getMessage());
+        }
+    }
+
+    //Revokes access to youtube account
+    public function removeAuthorization($access_token) {
+        $success = array('success' => false);
+        try {
+            $client = new \Google_Client();
+            $client->setClientId($this->OAUTH2_CLIENT_ID);
+            $client->setClientSecret($this->OAUTH2_CLIENT_SECRET);
+            $client->addScope('https://www.googleapis.com/auth/youtube');
+            $redirect = filter_var($this->REDIRECT_URL, FILTER_SANITIZE_URL);
+            $client->setRedirectUri($redirect);
+            if ($client->revokeToken($access_token)) {
+                $success = array('success' => true);
+            } else {
+                $success = array('success' => false, 'message' => 'YouTube: could not remove authorization');
+            }
+            return $success;
+        } catch (Google_Service_Exception $e) {
+            Log::info('Something went wrong with revoking youtube authorization: ' . $e->getCode() . " message is " . $e->getMessage());
+            $success = array('success' => false, 'message' => "Could not remove youtube authorization.");
+            return $success;
+        } catch (Exception $e) {
+            Log::info('Something went wrong with revoking youtube authorization: ' . $e->getCode() . " message is " . $e->getMessage());
+            $success = array('success' => false, 'message' => "Could not remove youtube authorization.");
+            return $success;
         }
     }
 
