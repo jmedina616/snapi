@@ -22,7 +22,7 @@ Route::group(['middleware' => ['smhAuth','smhSocialBroadcastingService']], funct
         // Get users' social network configuration
         Route::get('/configuration/pid/{partner_id}/ks/{ks}', 'SocialNetworkConfigurationController@show');
         //Remove platform authentication
-        Route::delete('/configuration/pid/{partner_id}/ks/{ks}/platform/{platform}', 'SocialNetworkConfigurationController@destroy');
+        Route::delete('/configuration/{platform}/pid/{partner_id}/ks/{ks}', 'SocialNetworkConfigurationController@destroy');
     });
 });
 
