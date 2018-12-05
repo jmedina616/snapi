@@ -22,7 +22,6 @@ class Youtube extends SocialPlatform implements SocialNetwork {
 
     //Builds and returns the platform configuration object
     public function getConfiguration($user_data) {
-        //dd(smhEncrypt('1/si4TiS5Ln5rt6Yj3Gewcs-Sk6yiMI0A-bSJhOMvrwJg'));
         $platform = new \stdClass();
         $platform_data = $this->getPlatformData($user_data->pid);
 
