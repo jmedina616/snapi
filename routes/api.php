@@ -17,10 +17,12 @@ use Illuminate\Http\Request;
 //    return $request->user();
 //});
 // Protected with smhAuth Middleware
-Route::group(['middleware' => ['smhAuth','smhSocialBroadcastingService']], function () {
+Route::group(['middleware' => ['smhAuth', 'smhSocialBroadcastingService']], function () {
     Route::prefix('sn')->group(function () {
-        // Get users' social network configuration
-        Route::get('/configuration/pid/{partner_id}/ks/{ks}', 'SocialNetworkConfigurationController@show');
+        // Get users' social network configurations
+        Route::get('/configuration/{action}/pid/{partner_id}/ks/{ks}', 'SocialNetworkConfigurationController@show');
+        //Resync platform account
+        Route::get('/configuration/{action}/{platform}/pid/{partner_id}/ks/{ks}', 'SocialNetworkConfigurationController@show');
         //Remove platform authentication
         Route::delete('/configuration/pid/{partner_id}/ks/{ks}/platform/{platform}', 'SocialNetworkConfigurationController@destroy');
     });

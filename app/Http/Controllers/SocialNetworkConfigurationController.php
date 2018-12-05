@@ -34,20 +34,29 @@ class SocialNetworkConfigurationController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function show(Request $request) {
-        //Create the user data object
-        $user_data = $this->createUserDataObject($request->partner_id, $request->ks);
+        switch ($request->action) {
+            case 'get':
+                //Create the user data object
+                $user_data = $this->createUserDataObject($request->partner_id, $request->ks);
 
-        //Get user's social media configurations
-        $youtube = \App::make('App\SocialNetworkServices\Youtube')->getConfiguration($user_data);
-        $twitch = \App::make('App\SocialNetworkServices\Twitch')->getConfiguration($user_data);
+                //Get user's social media configurations
+                $youtube = \App::make('App\SocialNetworkServices\Youtube')->getConfiguration($user_data);
+                $twitch = \App::make('App\SocialNetworkServices\Twitch')->getConfiguration($user_data);
 
-        //Build and return social media configurations array
-        $platform_configs = array();
-        array_push($platform_configs, $youtube, $twitch);
-        if ($platform_configs) {
-            return new SocialNetworkConfigurationResource($platform_configs);
-        } else {
-            throw new SmhAPIException('config_not_found', $request->partner_id);
+                //Build and return social media configurations array
+                $platform_configs = array();
+                array_push($platform_configs, $youtube, $twitch);
+                if (count($platform_configs) > 0) {
+                    return new SocialNetworkConfigurationResource($platform_configs);
+                } else {
+                    throw new SmhAPIException('config_not_found', $request->partner_id);
+                }
+                break;
+            case 'resync':
+                return 'resync ' . $request->platform;
+                break;
+            default:
+                throw new SmhAPIException('action_not_found', $request->action);
         }
     }
 
@@ -58,7 +67,6 @@ class SocialNetworkConfigurationController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request) {
-        //Create the user data object
         switch ($request->platform) {
             case 'youtube':
                 return \App::make('App\SocialNetworkServices\Youtube')->removePlatformAuthorization($request->partner_id);
