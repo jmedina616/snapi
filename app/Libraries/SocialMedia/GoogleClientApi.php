@@ -30,7 +30,7 @@ class GoogleClientApi implements SocialMedia {
             $client->setApprovalPrompt('force');
             $redirect = filter_var($this->REDIRECT_URL, FILTER_SANITIZE_URL);
             $client->setRedirectUri($redirect);
-            $client->setState($user_data->pid . "|" . $user_data->ks . "|" . $user_data->projection);
+            $client->setState($user_data->pid . "|" . $user_data->ks);
             $authUrl = $client->createAuthUrl();
             return $authUrl;
         } catch (Google_Service_Exception $e) {
