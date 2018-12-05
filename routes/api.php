@@ -24,7 +24,7 @@ Route::group(['middleware' => ['smhAuth', 'smhSocialBroadcastingService']], func
         //Resync platform account
         Route::get('/configuration/{action}/{platform}/pid/{partner_id}/ks/{ks}', 'SocialNetworkConfigurationController@show');
         //Remove platform authentication
-        Route::delete('/configuration/pid/{partner_id}/ks/{ks}/platform/{platform}', 'SocialNetworkConfigurationController@destroy');
+        Route::delete('/configuration/{platform}/pid/{partner_id}/ks/{ks}', 'SocialNetworkConfigurationController@destroy');
     });
 });
 
