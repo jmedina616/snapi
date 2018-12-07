@@ -15,4 +15,7 @@ interface SocialMedia {
 
     //Revokes access to social media account
     public function removeAuthorization($access_token);
+
+    //Retrieve channel data
+    public function getChannelData($access_token);
 }

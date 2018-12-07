@@ -21,4 +21,10 @@ interface SocialNetwork {
 
     //Resyncs platform data
     public function resyncAccount($user_data);
+
+    //Get channel details from youtube
+    public function resyncChannelData($pid, $access_token);
+
+    //Update channel data in DB
+    public function updateChannelData($pid, $channel_data);
 }
