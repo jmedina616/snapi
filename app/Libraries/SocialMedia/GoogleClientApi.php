@@ -222,4 +222,54 @@ class GoogleClientApi implements SocialMedia {
         }
     }
 
+    //Retrieve channel data
+    public function getChannelData($access_token) {
+        $success = array('success' => false);
+        try {
+            $client = new \Google_Client();
+            $client->setClientId($this->OAUTH2_CLIENT_ID);
+            $client->setClientSecret($this->OAUTH2_CLIENT_SECRET);
+            $client->addScope('https://www.googleapis.com/auth/youtube');
+            $redirect = filter_var($this->REDIRECT_URL, FILTER_SANITIZE_URL);
+            $client->setRedirectUri($redirect);
+            $client->setAccessToken($access_token);
+
+            $youtube = new \Google_Service_YouTube($client);
+            if ($client->getAccessToken()) {
+                try {
+                    $channelResponse = $youtube->channels->listChannels('id,snippet,status', array(
+                        'mine' => 'false'
+                    ));
+
+                    if (count($channelResponse['items']) >= 0) {
+                        $title = $channelResponse['items'][0]['snippet']['title'];
+                        $thumbnail = $channelResponse['items'][0]['snippet']['thumbnails']['high']['url'];
+                        $channel_id = $channelResponse['items'][0]['id'];
+                        $is_verified = $channelResponse['items'][0]['status']['longUploadsStatus'];
+                        $success = array('success' => true, 'channel_title' => $title, 'channel_thumb' => $thumbnail, 'channel_id' => $channel_id, 'is_verified' => $is_verified);
+                    } else {
+                        $success = array('success' => false);
+                    }
+                    return $success;
+                } catch (Google_Service_Exception $e) {
+                    Log::info('Something went wrong with getting youtube channel data: ' . $e->getCode() . " message is " . $e->getMessage());
+                    $success = array('success' => false, 'message' => "Could not get youtube channel data.");
+                    return $success;
+                } catch (Google_Exception $e) {
+                    Log::info('Something went wrong with getting youtube channel data: ' . $e->getCode() . " message is " . $e->getMessage());
+                    $success = array('success' => false, 'message' => "Could not get youtube channel data.");
+                    return $success;
+                }
+            }
+        } catch (Google_Service_Exception $e) {
+            Log::info('Something went wrong with getting youtube channel data: ' . $e->getCode() . " message is " . $e->getMessage());
+            $success = array('success' => false, 'message' => "Could not get youtube channel data.");
+            return $success;
+        } catch (Exception $e) {
+            Log::info('Something went wrong with getting youtube channel data: ' . $e->getCode() . " message is " . $e->getMessage());
+            $success = array('success' => false, 'message' => "Could not get youtube channel data.");
+            return $success;
+        }
+    }
+
 }

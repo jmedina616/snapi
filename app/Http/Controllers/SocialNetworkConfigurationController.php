@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Resources\SocialNetworkConfigurationResource;
+use App\Http\Resources\SocialNetworkConfigurationResyncResource;
 use App\Exceptions\SmhAPIException;
 
 class SocialNetworkConfigurationController extends Controller {
@@ -34,11 +35,10 @@ class SocialNetworkConfigurationController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function show(Request $request) {
+        //Create the user data object
+        $user_data = $this->createUserDataObject($request->partner_id, $request->ks);
         switch ($request->action) {
             case 'get':
-                //Create the user data object
-                $user_data = $this->createUserDataObject($request->partner_id, $request->ks);
-
                 //Get user's social media configurations
                 $youtube = \App::make('App\SocialNetworkServices\Youtube')->getConfiguration($user_data);
                 $twitch = \App::make('App\SocialNetworkServices\Twitch')->getConfiguration($user_data);
@@ -53,7 +53,16 @@ class SocialNetworkConfigurationController extends Controller {
                 }
                 break;
             case 'resync':
-                return 'resync ' . $request->platform;
+                switch ($request->platform) {
+                    case 'youtube':
+                        return new SocialNetworkConfigurationResyncResource(\App::make('App\SocialNetworkServices\Youtube')->resyncAccount($user_data));
+                        break;
+                    case 'twitch':
+                        return new SocialNetworkConfigurationResyncResource(\App::make('App\SocialNetworkServices\Twitch')->resyncAccount($user_data));
+                        break;
+                    default:
+                        throw new SmhAPIException('platform_not_found', $request->platform);
+                }
                 break;
             default:
                 throw new SmhAPIException('action_not_found', $request->action);

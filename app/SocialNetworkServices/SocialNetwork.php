@@ -18,4 +18,7 @@ interface SocialNetwork {
 
     //Removes platform authorization and configuration from DB
     public function removePlatformAuthorization($pid);
+
+    //Resyncs platform data
+    public function resyncAccount($user_data);
 }
