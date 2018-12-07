@@ -134,4 +134,32 @@ class TwitchClientApi implements SocialMedia {
         }
     }
 
+    //Retrieve channel data
+    public function getChannelData($access_token) {       
+        $success = array('success' => false);
+        try {
+            $url = 'https://api.twitch.tv/kraken/user';
+            $client = new \GuzzleHttp\Client(['http_errors' => false]);
+            $options = [
+                'headers' => [
+                    'Accept' => 'application/vnd.twitchtv.v5+json',
+                    'Client-ID: ' . $this->OAUTH2_CLIENT_ID,
+                    'Authorization' => 'OAuth ' . $access_token
+                ]
+            ];
+            $request = $client->get($url, $options);
+            $response = json_decode($request->getBody(), true);
+
+            if (count($response) > 0) {
+                $success = array('success' => true, 'channel_name' => $response['display_name'], 'channel_logo' => $response['logo'], 'channel_id' => $response['_id']);
+            }
+
+            return $success;
+        } catch (Exception $e) {
+            Log::error('Something went wrong with removing twitch channel data: ' . $e->getCode() . " message is " . $e->getMessage());
+            $success = array('success' => false, 'message' => "Could not remove twitch channel data.");
+            return $success;
+        }
+    }
+
 }

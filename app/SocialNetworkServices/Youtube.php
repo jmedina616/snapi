@@ -260,11 +260,11 @@ class Youtube extends SocialPlatform implements SocialNetwork {
     protected function isLiveStreamEnabled($pid, $access_token) {
         $enabled = false;
         //Check live streaming status from youtube
-        $ls_enabled = $this->social_media_client_api->isLiveStreamEnabled($access_token);
+        $ls_enabled = $this->social_media_client_api->isLiveStreamEnabled($pid, $access_token);
         if ($ls_enabled) {
             $enabled = true;
         }
-        return $success;
+        return $enabled;
     }
 
     //Updates live streaming status in DB
@@ -309,6 +309,75 @@ class Youtube extends SocialPlatform implements SocialNetwork {
         } else {
             throw new SmhAPIException('account_not_found', $pid);
         }
+    }
+
+    //Resyncs platform data
+    public function resyncAccount($user_data) {
+        $success = array('success' => false);
+        $platform_data = $this->getPlatformData($user_data->pid);
+        if (count($platform_data) > 0) {
+            //Check if the user's access token is still valid
+            $authorized = $this->validateToken($user_data->pid, $platform_data);
+            if ($authorized['isValid']) {
+                //Get channel details from youtube
+                $channel = $this->resyncChannelData($user_data->pid, $authorized['access_token']);
+                if ($channel['success']) {
+                    //Update channel data in the DB
+                    $update_channel = $this->updateChannelData($user_data->pid, $channel['channel_details']);
+                    if ($update_channel) {
+                        $success = array(
+                            'channel_name' => $channel['channel_details']['channel_title'],
+                            'channel_thumbnail' => $channel['channel_details']['channel_thumb']
+                        );
+                    }
+                } else {
+                    throw new SmhAPIException('socail_media_api_error', 'Could not get youtube channel data.');
+                }
+            } else {
+                throw new SmhAPIException('socail_media_api_error', 'Could not validate youtube access token.');
+            }
+        } else {
+            throw new SmhAPIException('account_not_found', $pid);
+        }
+
+        return $success;
+    }
+
+    //Get channel details from youtube
+    public function resyncChannelData($pid, $access_token) {
+        $success = array('success' => false);
+        //Retrieve channel data from youtube
+        $channel_data = $this->social_media_client_api->getChannelData($access_token);
+        if ($channel_data['success']) {
+            //Check live streaming status from youtube
+            $live_stream = $this->isLiveStreamEnabled($pid, $access_token);
+            $channel_details = array('channel_title' => $channel_data['channel_title'], 'channel_thumb' => $channel_data['channel_thumb'], 'channel_id' => $channel_data['channel_id'], 'is_verified' => $channel_data['is_verified'], 'ls_enabled' => $live_stream);
+            $success = array('success' => true, 'channel_details' => $channel_details);
+        } else {
+            throw new SmhAPIException('socail_media_api_error', $channel_data['message']);
+        }
+        return $success;
+    }
+
+    //Update channel data in DB
+    public function updateChannelData($pid, $channel_data) {
+        $success = false;
+        $youtube_data = YoutubeChannel::where('partner_id', '=', $pid)->first();
+        if ($youtube_data) {
+            $youtube_data->name = $channel_data['channel_title'];
+            $youtube_data->thumbnail = $channel_data['channel_thumb'];
+            $youtube_data->channel_id = smhEncrypt($channel_data['channel_id']);
+            $youtube_data->is_verified = $channel_data['is_verified'];
+            $youtube_data->ls_enabled = $channel_data['ls_enabled'];
+
+            if ($youtube_data->save()) {
+                $success = true;
+            } else {
+                throw new SmhAPIException('internal_database_error', 'Could not update YouTube channel data for account \'' . $pid . '\'');
+            }
+        }
+
+        return $success;
     }
 
 }

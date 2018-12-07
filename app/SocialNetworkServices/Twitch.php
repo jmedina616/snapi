@@ -8,6 +8,7 @@ use App\SocialNetworkServices\SocialNetwork;
 use App\SocialNetworkServices\SocialPlatform;
 use App\Libraries\SocialMedia\SocialMedia as SocialMediaAPI;
 use App\Exceptions\SmhAPIException;
+use Log;
 
 //Twitch service class
 class Twitch extends SocialPlatform implements SocialNetwork {
@@ -162,6 +163,72 @@ class Twitch extends SocialPlatform implements SocialNetwork {
         } else {
             throw new SmhAPIException('socail_media_api_error', 'Could not validate twitch access token.');
         }
+    }
+
+    //Resyncs platform data
+    public function resyncAccount($user_data) {
+        $success = array('success' => false);
+        $platform_data = $this->getPlatformData($user_data->pid);
+        if (count($platform_data) > 0) {
+            //Check if the user's access token is still valid
+            $authorized = $this->validateToken($user_data->pid, $platform_data);
+            if ($authorized['isValid']) {
+                //Get channel details from twitch
+                $channel = $this->resyncChannelData($user_data->pid, $authorized['access_token']['access_token']);
+                if ($channel['success']) {
+                    //Update channel data in the DB
+                    $update_channel = $this->updateChannelData($user_data->pid, $channel['channel_details']);
+                    if ($update_channel) {
+                        $success = array(
+                        'channel_name' => $channel['channel_details']['channel_name'],
+                        'channel_logo' => $channel['channel_details']['channel_logo']
+                        );
+                    }
+                } else {
+                    throw new SmhAPIException('socail_media_api_error', 'Could not get twitch channel data.');
+                }
+            } else {
+                throw new SmhAPIException('socail_media_api_error', 'Could not validate twitch access token.');
+            }
+        } else {
+            throw new SmhAPIException('account_not_found', $pid);
+        }
+
+        return $success;
+    }
+
+    //Get channel details from twitch
+    public function resyncChannelData($pid, $access_token) {
+        $success = array('success' => false);
+        //Retrieve channel data from twitch
+        $channel_data = $this->social_media_client_api->getChannelData($access_token);
+        if ($channel_data['success']) {
+            //Check live streaming status from twitch
+            $channel_details = array('channel_name' => $channel_data['channel_name'], 'channel_logo' => $channel_data['channel_logo'], 'channel_id' => $channel_data['channel_id']);
+            $success = array('success' => true, 'channel_details' => $channel_details);
+        } else {
+            throw new SmhAPIException('socail_media_api_error', $channel_data['message']);
+        }
+        return $success;
+    }
+
+    //Update channel data in DB
+    public function updateChannelData($pid, $channel_data) {
+        $success = false;
+        $twitch_data = TwitchChannel::where('partner_id', '=', $pid)->first();
+        if ($twitch_data) {
+            $twitch_data->name = $channel_data['channel_name'];
+            $twitch_data->channel_id = smhEncrypt($channel_data['channel_id']);
+            $twitch_data->logo = $channel_data['channel_logo'];
+
+            if ($twitch_data->save()) {
+                $success = true;
+            } else {
+                throw new SmhAPIException('internal_database_error', 'Could not update Twitch channel data for account \'' . $pid . '\'');
+            }
+        }
+
+        return $success;
     }
 
 }
