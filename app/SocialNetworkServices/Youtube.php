@@ -380,4 +380,25 @@ class Youtube extends SocialPlatform implements SocialNetwork {
         return $success;
     }
 
+    //Updates channel settings
+    public function updateChannelSettings($pid, $auto_upload) {
+        $success = 'false';
+        $platform_data = $this->getPlatformData($pid);
+        if (count($platform_data) > 0) {
+            $youtube_data = YoutubeChannelSetting::where('youtube_channel_id', '=', $platform_data['id'])->first();
+            if ($youtube_data) {
+                $youtube_data->auto_upload = $auto_upload;
+
+                if ($youtube_data->save()) {
+                    $success = 'true';
+                } else {
+                    throw new SmhAPIException('internal_database_error', 'Could not update YouTube channel settings for account \'' . $pid . '\'');
+                }
+            }
+        } else {
+            throw new SmhAPIException('account_not_found', $pid);
+        }
+        return $success;
+    }
+
 }

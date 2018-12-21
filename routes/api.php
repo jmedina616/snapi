@@ -19,10 +19,10 @@ use Illuminate\Http\Request;
 // Protected with smhAuth Middleware
 Route::group(['middleware' => ['smhAuth', 'smhSocialBroadcastingService']], function () {
     Route::prefix('sn/configuration/')->group(function () {
-        // Get users' social network configurations
-        Route::get('{action}/pid/{partner_id}/ks/{ks}', 'SocialNetworkConfigurationController@show');
-        //Resync platform account
+        //Get social network configurations or Resync platform account
         Route::get('{action}/{platform}/pid/{partner_id}/ks/{ks}', 'SocialNetworkConfigurationController@show');
+        // Update platform settings
+        Route::put('{platform}/pid/{partner_id}/ks/{ks}', 'SocialNetworkConfigurationController@store');
         //Remove platform authentication
         Route::delete('{platform}/pid/{partner_id}/ks/{ks}', 'SocialNetworkConfigurationController@destroy');
     });

@@ -158,10 +158,10 @@ class Twitch extends SocialPlatform implements SocialNetwork {
                     throw new SmhAPIException('socail_media_api_error', $removeAuthorization['message']);
                 }
             } else {
-                throw new SmhAPIException('account_not_found', $pid);
+                throw new SmhAPIException('socail_media_api_error', 'Could not validate twitch access token.');
             }
         } else {
-            throw new SmhAPIException('socail_media_api_error', 'Could not validate twitch access token.');
+            throw new SmhAPIException('account_not_found', $pid);
         }
     }
 
@@ -180,8 +180,8 @@ class Twitch extends SocialPlatform implements SocialNetwork {
                     $update_channel = $this->updateChannelData($user_data->pid, $channel['channel_details']);
                     if ($update_channel) {
                         $success = array(
-                        'channel_name' => $channel['channel_details']['channel_name'],
-                        'channel_logo' => $channel['channel_details']['channel_logo']
+                            'channel_name' => $channel['channel_details']['channel_name'],
+                            'channel_logo' => $channel['channel_details']['channel_logo']
                         );
                     }
                 } else {
@@ -228,6 +228,27 @@ class Twitch extends SocialPlatform implements SocialNetwork {
             }
         }
 
+        return $success;
+    }
+
+    //Updates channel settings
+    public function updateChannelSettings($pid, $auto_upload) {
+        $success = 'false';
+        $platform_data = $this->getPlatformData($pid);
+        if (count($platform_data) > 0) {
+            $twitch_data = TwitchChannelSetting::where('twitch_channel_id', '=', $platform_data['id'])->first();
+            if ($twitch_data) {
+                $twitch_data->auto_upload = $auto_upload;
+
+                if ($twitch_data->save()) {
+                    $success = 'true';
+                } else {
+                    throw new SmhAPIException('internal_database_error', 'Could not update Twitch channel settings for account \'' . $pid . '\'');
+                }
+            }
+        } else {
+            throw new SmhAPIException('account_not_found', $pid);
+        }
         return $success;
     }
 

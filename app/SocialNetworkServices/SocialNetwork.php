@@ -27,4 +27,7 @@ interface SocialNetwork {
 
     //Update channel data in DB
     public function updateChannelData($pid, $channel_data);
+
+    //Updates channel settings
+    public function updateChannelSettings($pid, $auto_upload);
 }

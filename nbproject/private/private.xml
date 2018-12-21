@@ -11,10 +11,12 @@
             <file>file:/C:/xampp/htdocs/snapi/app/SocialNetworkServices/Youtube.php</file>
             <file>file:/C:/xampp/htdocs/snapi/app/Libraries/SocialMedia/TwitchClientApi.php</file>
             <file>file:/C:/xampp/htdocs/snapi/app/TwitchChannelSetting.php</file>
+            <file>file:/C:/xampp/htdocs/snapi/.env</file>
             <file>file:/C:/xampp/htdocs/snapi/app/Libraries/SocialMedia/GoogleClientApi.php</file>
             <file>file:/C:/xampp/htdocs/snapi/app/YoutubeChannelSetting.php</file>
             <file>file:/C:/xampp/htdocs/snapi/app/Libraries/SocialMedia/SocialMedia.php</file>
             <file>file:/C:/xampp/htdocs/snapi/app/SocialNetworkServices/SocialNetwork.php</file>
+            <file>file:/C:/xampp/htdocs/snapi/app/Http/Resources/SocialNetworkConfigurationResource.php</file>
             <file>file:/C:/xampp/htdocs/snapi/app/YoutubeChannel.php</file>
         </group>
     </open-files>

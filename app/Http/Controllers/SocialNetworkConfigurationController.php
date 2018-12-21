@@ -25,7 +25,16 @@ class SocialNetworkConfigurationController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request) {
-        //
+        switch ($request->platform) {
+            case 'youtube':
+                return \App::make('App\SocialNetworkServices\Youtube')->updateChannelSettings($request->partner_id, $request->auto_upload);
+                break;
+            case 'twitch':
+                return \App::make('App\SocialNetworkServices\Twitch')->updateChannelSettings($request->partner_id, $request->auto_upload);
+                break;
+            default:
+                throw new SmhAPIException('platform_not_found', $request->platform);
+        }
     }
 
     /**
